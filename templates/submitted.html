@@ -185,19 +185,29 @@
 
         {% if session['role'] in ['admin', 'ceo'] %}
 
-        <li onclick="window.location.href='/analytics'">
-            Analytics
-        </li>
+<li onclick="window.location.href='/analytics'">
+    Analytics
+</li>
 
-        <li onclick="window.location.href='/history'">
-            History
-        </li>
+<li onclick="window.location.href='/history'">
+    History
+</li>
 
-        <li onclick="window.location.href='/settings'">
-            Settings
-        </li>
+<li onclick="window.location.href='/settings'">
+    Settings
+</li>
 
-        {% endif %}
+{% endif %}
+
+<li onclick="window.location.href='/settlements'">
+    Travel Settlement
+</li>
+
+{% if session['role'] == 'accounts' %}
+<li onclick="window.location.href='/submitted-settlements'">
+    Travel Submitted
+</li>
+{% endif %}
 
         <li onclick="window.location.href='/profile'">
             Profile

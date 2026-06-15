@@ -698,7 +698,28 @@ button:hover {
 
     max-height:350px !important;
 }
+.row-buttons{
 
+    margin-top:20px;
+
+    text-align:right;
+}
+
+.row-buttons button{
+
+    width:auto;
+
+    padding:12px 24px;
+}
+
+.remove-btn{
+
+    background:#ef4444;
+
+    width:auto;
+
+    padding:8px 12px;
+}
 /* =========================================
    MOBILE
 ========================================= */

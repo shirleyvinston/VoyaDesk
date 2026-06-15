@@ -103,13 +103,15 @@
 <li class="active-menu">
     History
 </li>
-
 <!-- SETTINGS -->
 
 <li onclick="window.location.href='/settings'">
     Settings
 </li>
 
+<li onclick="window.location.href='/settlements'">
+    Travel Settlement
+</li>
 {% endif %}
         <!-- PROFILE -->
 
@@ -263,7 +265,6 @@
                         </a>
 
                     </td>
-
                     <!-- ACTIONS -->
 
                     <td>
@@ -277,23 +278,25 @@
         Approve
     </a>
 
-    <a href="/query/{{ row.id }}">
+    <a
+    href="/query-page/{{ row.id }}"
+>
 
-        <button
-            style="
-                background:orange;
-                color:white;
-                border:none;
-                padding:10px 18px;
-                border-radius:8px;
-                cursor:pointer;
-                font-weight:bold;
-            "
-        >
-            Query
-        </button>
+    <button
+        style="
+            background:orange;
+            color:white;
+            border:none;
+            padding:10px 18px;
+            border-radius:8px;
+            cursor:pointer;
+            font-weight:bold;
+        "
+    >
+        Query
+    </button>
 
-    </a>
+</a>
 
     <a
         href="/decline-request/{{ row.id }}"

@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Claim Breakup</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+
+</head>
+
+<body>
+
+<div class="sidebar">
+
+    <div class="sidebar-logo">
+        <img
+            src="{{ url_for('static', filename='images/logo.png') }}"
+            class="sidebar-image"
+        >
+    </div>
+
+    <ul>
+    <li onclick="window.location.href='/'">Dashboard</li>
+    <li onclick="window.location.href='/new-request'">New Request</li>
+    <li onclick="window.location.href='/analytics'">Analytics</li>
+    <li onclick="window.location.href='/history'">History</li>
+    <li class="active-menu">Travel Settlement</li>
+
+    <li onclick="window.location.href='/profile'">
+        Profile
+    </li>
+
+    <li onclick="window.location.href='/logout'">
+        Logout
+    </li>
+</ul>
+
+</div>
+
+<div class="request-container">
+
+    <div class="container">
+
+        <h1 class="title">
+            Claim Breakup
+        </h1>
+        <form
+    method="POST"
+    enctype="multipart/form-data"
+>
+
+            <!-- TRAVELLING -->
+
+            <h2 class="section-title">
+                Travelling Expenses
+            </h2>
+
+            <table class="expense-sheet">
+
+                <thead>
+
+                <tr>
+                    <th>Date</th>
+                    <th>Particulars</th>
+                    <th>Mode</th>
+                    <th>Bill No</th>
+                    <th>Amount</th>
+                    <th>Action</th>
+                </tr>
+
+                </thead>
+
+                <tbody id="travel_body">
+
+{% if travel_expenses %}
+
+    {% for row in travel_expenses %}
+
+    <tr>
+
+        <td>
+            <input
+                type="date"
+                name="travel_date[]"
+                value="{{ row.expense_date }}"
+            >
+        </td>
+
+        <td>
+            <input
+                type="text"
+                name="travel_particular[]"
+                value="{{ row.particulars }}"
+            >
+        </td>
+
+        <td>
+            <input
+                type="text"
+                name="travel_mode[]"
+                value="{{ row.mode }}"
+            >
+        </td>
+
+        <td>
+            <input
+                type="text"
+                name="travel_bill[]"
+                value="{{ row.bill_no }}"
+            >
+        </td>
+
+        <td>
+            <input
+                type="number"
+                step="0.01"
+                name="travel_amount[]"
+                value="{{ row.amount }}"
+                class="travel-total"
+                oninput="calculateTotals()"
+            >
+        </td>
+
+        <td>
+            <button
+                type="button"
+                class="remove-btn"
+                onclick="removeRow(this)"
+            >
+                Remove
+            </button>
+        </td>
+
+    </tr>
+
+    {% endfor %}
+
+{% else %}
+
+<tr>
+
+    <td><input type="date" name="travel_date[]"></td>
+
+    <td><input type="text" name="travel_particular[]"></td>
+
+    <td><input type="text" name="travel_mode[]"></td>
+
+    <td><input type="text" name="travel_bill[]"></td>
+
+    <td>
+        <input
+            type="number"
+            step="0.01"
+            name="travel_amount[]"
+            class="travel-total"
+            oninput="calculateTotals()"
+        >
+    </td>
+
+    <td>
+        <button
+            type="button"
+            class="remove-btn"
+            onclick="removeRow(this)"
+        >
+            Remove
+        </button>
+    </td>
+
+</tr>
+
+{% endif %}
+
+</tbody>
+
+            </table>
+<div class="row-buttons">
+
+    <button
+        type="button"
+        onclick="addRow('travel_body')"
+    >
+        + Add Row
+    </button>
+
+</div>
+            <div class="total-box">
+                Travelling Total :
+                ₹ <span id="travel_total">0.00</span>
+            </div>
+
+            <!-- CONVEYANCE -->
+
+            <h2 class="section-title">
+                Conveyance
+            </h2>
+
+            <table class="expense-sheet">
+
+                <thead>
+
+                <tr>
+                    <th>Date</th>
+                    <th>Particulars</th>
+                    <th>Mode</th>
+                    <th>Bill No</th>
+                    <th>Amount</th>
+                    <th>Action</th>
+                </tr>
+
+                </thead>
+
+                <tbody id="convey_body">
+
+{% if convey_expenses %}
+
+    {% for row in convey_expenses %}
+
+    <tr>
+
+        <td>
+            <input
+                type="date"
+                name="convey_date[]"
+                value="{{ row.expense_date }}"
+            >
+        </td>
+
+        <td>
+            <input
+                type="text"
+                name="convey_particular[]"
+                value="{{ row.particulars }}"
+            >
+        </td>
+
+        <td>
+            <input
+                type="text"
+                name="convey_mode[]"
+                value="{{ row.mode }}"
+            >
+        </td>
+
+        <td>
+            <input
+                type="text"
+                name="convey_bill[]"
+                value="{{ row.bill_no }}"
+            >
+        </td>
+
+        <td>
+            <input
+                type="number"
+                step="0.01"
+                name="convey_amount[]"
+                value="{{ row.amount }}"
+                class="convey-total"
+                oninput="calculateTotals()"
+            >
+        </td>
+
+        <td>
+            <button
+                type="button"
+                class="remove-btn"
+                onclick="removeRow(this)"
+            >
+                Remove
+            </button>
+        </td>
+
+    </tr>
+
+    {% endfor %}
+
+{% else %}
+
+<tr>
+    <td><input type="date" name="convey_date[]"></td>
+    <td><input type="text" name="convey_particular[]"></td>
+    <td><input type="text" name="convey_mode[]"></td>
+    <td><input type="text" name="convey_bill[]"></td>
+    <td>
+        <input
+            type="number"
+            step="0.01"
+            name="convey_amount[]"
+            class="convey-total"
+            oninput="calculateTotals()"
+        >
+    </td>
+    <td>
+        <button
+            type="button"
+            class="remove-btn"
+            onclick="removeRow(this)"
+        >
+            Remove
+        </button>
+    </td>
+</tr>
+
+{% endif %}
+
+</tbody>
+
+            </table>
+<div class="row-buttons">
+
+    <button
+        type="button"
+        onclick="addRow('convey_body')"
+    >
+        + Add Row
+    </button>
+
+</div>
+            <div class="total-box">
+                Conveyance Total :
+                ₹ <span id="convey_total">0.00</span>
+            </div>
+
+            <!-- FOOD -->
+
+            <h2 class="section-title">
+                Boarding / Food Expenses
+            </h2>
+
+            <table class="expense-sheet">
+
+                <thead>
+
+                <tr>
+                    <th>Date</th>
+                    <th>Particulars</th>
+                    <th>Bill No</th>
+                    <th>Amount</th>
+                    <th>Action</th>
+                </tr>
+
+                </thead>
+
+                <tbody id="food_body">
+
+{% if food_expenses %}
+
+{% for row in food_expenses %}
+
+<tr>
+
+<td>
+<input type="date"
+       name="food_date[]"
+       value="{{ row.expense_date }}">
+</td>
+
+<td>
+<input type="text"
+       name="food_particular[]"
+       value="{{ row.particulars }}">
+</td>
+
+<td>
+<input type="text"
+       name="food_bill[]"
+       value="{{ row.bill_no }}">
+</td>
+
+<td>
+<input type="number"
+       step="0.01"
+       name="food_amount[]"
+       value="{{ row.amount }}"
+       class="food-total"
+       oninput="calculateTotals()">
+</td>
+
+<td>
+<button
+type="button"
+class="remove-btn"
+onclick="removeRow(this)">
+Remove
+</button>
+</td>
+
+</tr>
+
+{% endfor %}
+
+{% else %}
+
+<tr>
+
+<td><input type="date" name="food_date[]"></td>
+
+<td><input type="text" name="food_particular[]"></td>
+
+<td><input type="text" name="food_bill[]"></td>
+
+<td>
+<input
+type="number"
+step="0.01"
+name="food_amount[]"
+class="food-total"
+oninput="calculateTotals()">
+</td>
+
+<td>
+<button
+type="button"
+class="remove-btn"
+onclick="removeRow(this)">
+Remove
+</button>
+</td>
+
+</tr>
+
+{% endif %}
+
+</tbody>
+            </table>
+            <div class="row-buttons">
+
+    <button
+        type="button"
+        onclick="addRow('food_body')"
+    >
+        + Add Row
+    </button>
+
+</div>
+
+            <div class="total-box">
+                Food Total :
+                ₹ <span id="food_total">0.00</span>
+            </div>
+
+            <!-- HOTEL -->
+
+            <h2 class="section-title">
+                Hotel
+            </h2>
+
+            <table class="expense-sheet">
+
+                <thead>
+
+                <tr>
+                    <th>Date</th>
+                    <th>Particulars</th>
+                    <th>Bill No</th>
+                    <th>Amount</th>
+                    <th>Action</th>
+                </tr>
+
+                </thead>
+
+                <tbody id="hotel_body">
+
+{% if hotel_expenses %}
+
+{% for row in hotel_expenses %}
+
+<tr>
+
+<td>
+<input type="date"
+       name="hotel_date[]"
+       value="{{ row.expense_date }}">
+</td>
+
+<td>
+<input type="text"
+       name="hotel_particular[]"
+       value="{{ row.particulars }}">
+</td>
+
+<td>
+<input type="text"
+       name="hotel_bill[]"
+       value="{{ row.bill_no }}">
+</td>
+
+<td>
+<input type="number"
+       step="0.01"
+       name="hotel_amount[]"
+       value="{{ row.amount }}"
+       class="hotel-total"
+       oninput="calculateTotals()">
+</td>
+
+<td>
+<button
+type="button"
+class="remove-btn"
+onclick="removeRow(this)">
+Remove
+</button>
+</td>
+
+</tr>
+
+{% endfor %}
+
+{% else %}
+
+<tr>
+
+<td><input type="date" name="hotel_date[]"></td>
+
+<td><input type="text" name="hotel_particular[]"></td>
+
+<td><input type="text" name="hotel_bill[]"></td>
+
+<td>
+<input
+type="number"
+step="0.01"
+name="hotel_amount[]"
+class="hotel-total"
+oninput="calculateTotals()">
+</td>
+
+<td>
+<button
+type="button"
+class="remove-btn"
+onclick="removeRow(this)">
+Remove
+</button>
+</td>
+
+</tr>
+
+{% endif %}
+
+</tbody>
+            </table>
+<div class="row-buttons">
+
+    <button
+        type="button"
+        onclick="addRow('hotel_body')"
+    >
+        + Add Row
+    </button>
+
+</div>
+            <div class="total-box">
+                Hotel Total :
+                ₹ <span id="hotel_total">0.00</span>
+            </div>
+            <h2 class="section-title">
+    Others
+</h2>
+
+<table class="expense-sheet">
+
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Particulars</th>
+            <th>Bill No</th>
+            <th>Amount</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+
+    <tbody id="other_body">
+
+{% if other_expenses %}
+
+{% for row in other_expenses %}
+
+<tr>
+
+<td>
+<input type="date"
+       name="other_date[]"
+       value="{{ row.expense_date }}">
+</td>
+
+<td>
+<input type="text"
+       name="other_particular[]"
+       value="{{ row.particulars }}">
+</td>
+
+<td>
+<input type="text"
+       name="other_bill[]"
+       value="{{ row.bill_no }}">
+</td>
+
+<td>
+<input type="number"
+       step="0.01"
+       name="other_amount[]"
+       value="{{ row.amount }}"
+       class="other-total"
+       oninput="calculateTotals()">
+</td>
+
+<td>
+<button
+type="button"
+class="remove-btn"
+onclick="removeRow(this)">
+Remove
+</button>
+</td>
+
+</tr>
+
+{% endfor %}
+
+{% else %}
+
+<tr>
+
+<td><input type="date" name="other_date[]"></td>
+
+<td><input type="text" name="other_particular[]"></td>
+
+<td><input type="text" name="other_bill[]"></td>
+
+<td>
+<input
+type="number"
+step="0.01"
+name="other_amount[]"
+class="other-total"
+oninput="calculateTotals()">
+</td>
+
+<td>
+<button
+type="button"
+class="remove-btn"
+onclick="removeRow(this)">
+Remove
+</button>
+</td>
+
+</tr>
+
+{% endif %}
+
+</tbody>
+
+</table>
+<div class="total-box">
+
+    Others Total :
+    ₹ <span id="other_total">0.00</span>
+
+</div>
+
+<div class="row-buttons">
+
+    <button
+        type="button"
+        onclick="addRow('other_body')"
+    >
+        + Add Row
+    </button>
+
+</div>
+
+            <h2 class="section-title">
+    Other Office Expenses
+</h2>
+
+<table class="expense-sheet">
+
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Particulars</th>
+            <th>Bill No</th>
+            <th>Amount</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+
+    <tbody id="office_body">
+
+{% if office_expenses %}
+
+{% for row in office_expenses %}
+
+<tr>
+
+<td>
+<input type="date"
+       name="office_date[]"
+       value="{{ row.expense_date }}">
+</td>
+
+<td>
+<input type="text"
+       name="office_particular[]"
+       value="{{ row.particulars }}">
+</td>
+
+<td>
+<input type="text"
+       name="office_bill[]"
+       value="{{ row.bill_no }}">
+</td>
+
+<td>
+<input type="number"
+       step="0.01"
+       name="office_amount[]"
+       value="{{ row.amount }}"
+       class="office-total"
+       oninput="calculateTotals()">
+</td>
+
+<td>
+<button
+type="button"
+class="remove-btn"
+onclick="removeRow(this)">
+Remove
+</button>
+</td>
+
+</tr>
+
+{% endfor %}
+
+{% else %}
+
+<tr>
+
+<td><input type="date" name="office_date[]"></td>
+
+<td><input type="text" name="office_particular[]"></td>
+
+<td><input type="text" name="office_bill[]"></td>
+
+<td>
+<input
+type="number"
+step="0.01"
+name="office_amount[]"
+class="office-total"
+oninput="calculateTotals()">
+</td>
+
+<td>
+<button
+type="button"
+class="remove-btn"
+onclick="removeRow(this)">
+Remove
+</button>
+</td>
+
+</tr>
+
+{% endif %}
+
+</tbody>
+</table>
+
+<div class="total-box">
+
+    Office Total :
+    ₹ <span id="office_total">0.00</span>
+
+</div>
+
+<div class="row-buttons">
+
+    <button
+        type="button"
+        onclick="addRow('office_body')"
+    >
+        + Add Row
+    </button>
+
+</div>
+<div class="total-box">
+
+    Total Expense :
+    ₹ <span id="grand_total">0.00</span>
+
+</div>
+
+<div class="total-box">
+
+    Cash Advance Received :
+    ₹ {{ settlement.advance_received }}
+
+</div>
+
+<div class="total-box">
+
+    <span id="balance_label">
+
+        Balance Due From Company
+
+    </span>
+
+    :
+
+    ₹ <span id="balance_amount">
+        0.00
+    </span>
+
+</div>
+<div class="page-buttons">
+
+    <button
+        type="button"
+        onclick="window.location.href='/create-settlement/{{ request_id }}'"
+    >
+        ← Back
+    </button>
+
+    <button type="submit">
+        Save Settlement
+    </button>
+
+</div>
+</form>
+<h2 class="section-title">
+    Upload Bills / Receipts
+</h2>
+
+<form
+    method="POST"
+    enctype="multipart/form-data"
+>
+
+    <input
+        type="hidden"
+        name="action"
+        value="upload"
+    >
+
+    <input
+        type="file"
+        name="expense_files"
+        id="expense_files"
+        multiple
+        accept="
+            .pdf,
+            .jpg,
+            .jpeg,
+            .png,
+            .doc,
+            .docx,
+            .xls,
+            .xlsx
+        "
+    >
+
+    <button type="submit">
+        Upload Files
+    </button>
+</form>
+<h3>Uploaded Bills</h3>
+
+<table class="expense-sheet">
+
+    <thead>
+
+        <tr>
+            <th>File Name</th>
+            <th>Action</th>
+        </tr>
+
+    </thead>
+
+    <tbody>
+
+    {% for file in uploaded_files %}
+
+    <tr>
+
+        <td>
+            {{ file.original_filename }}
+        </td>
+
+        <td>
+
+            <a
+                href="/view-file/{{ file.id }}"
+                target="_blank"
+                class="download-btn"
+            >
+                View
+            </a>
+
+            <form
+    action="/delete-settlement-file/{{ file.id }}"
+    method="POST"
+    style="display:inline;"
+>
+    <button
+        type="submit"
+        class="decline-btn"
+    >
+        Remove
+    </button>
+</form>
+        </td>
+
+    </tr>
+
+    {% endfor %}
+</tbody>
+</table><form action="/submit-settlement/{{ request_id }}"
+      method="POST"
+      style="margin-top:20px; text-align:center;">
+
+    <button
+        type="submit"
+        class="btn btn-success">
+        Final Submit
+    </button>
+
+</form>
+
+    </div>
+
+</div>
+
+<script>
+
+function sumClass(className){
+
+    let total = 0;
+
+    document.querySelectorAll("." + className)
+    .forEach(function(input){
+
+        total += parseFloat(input.value) || 0;
+
+    });
+
+    return total;
+}
+
+function calculateTotals(){
+
+    let travel =
+        sumClass("travel-total");
+
+    let convey =
+        sumClass("convey-total");
+
+    let food =
+        sumClass("food-total");
+
+    let hotel =
+        sumClass("hotel-total");
+
+    let other =
+        sumClass("other-total");
+
+    let office =
+        sumClass("office-total");
+    let grandTotal =
+    travel +
+    convey +
+    food +
+    hotel +
+    other +
+    office;
+
+    document.getElementById(
+        "travel_total"
+    ).innerHTML =
+        travel.toFixed(2);
+
+    document.getElementById(
+        "convey_total"
+    ).innerHTML =
+        convey.toFixed(2);
+
+    document.getElementById(
+        "food_total"
+    ).innerHTML =
+        food.toFixed(2);
+
+    document.getElementById(
+        "hotel_total"
+    ).innerHTML =
+        hotel.toFixed(2);
+
+    document.getElementById(
+        "other_total"
+    ).innerHTML =
+        other.toFixed(2);
+
+    document.getElementById(
+        "office_total"
+    ).innerHTML =
+        office.toFixed(2);
+    document.getElementById(
+    "other_total"
+    ).innerHTML =
+        other.toFixed(2);
+    document.getElementById(
+    "grand_total"
+).innerHTML =
+    grandTotal.toFixed(2);
+
+let advance =
+    parseFloat(
+        "{{ settlement.advance_received }}"
+    ) || 0;
+
+let difference =
+    grandTotal - advance;
+
+if(difference >= 0){
+
+    document.getElementById(
+        "balance_label"
+    ).innerHTML =
+        "Balance Due From Company";
+
+    document.getElementById(
+        "balance_amount"
+    ).innerHTML =
+        difference.toFixed(2);
+
+}
+else{
+
+    document.getElementById(
+        "balance_label"
+    ).innerHTML =
+        "Balance Due To Company";
+
+    document.getElementById(
+        "balance_amount"
+    ).innerHTML =
+        Math.abs(
+            difference
+        ).toFixed(2);
+
+}
+}
+</script>
+<script>
+function addRow(tbodyId){
+
+    let tbody =
+        document.getElementById(
+            tbodyId
+        );
+
+    let firstRow =
+        tbody.rows[0];
+
+    let newRow =
+        firstRow.cloneNode(true);
+
+    newRow.querySelectorAll(
+        "input"
+    ).forEach(function(input){
+
+        input.value = "";
+
+    });
+
+    tbody.appendChild(
+        newRow
+    );
+}
+function removeRow(button){
+
+    let tbody =
+        button.closest("tbody");
+
+    if(tbody.rows.length <= 1){
+
+        alert(
+            "At least one row is required."
+        );
+
+        return;
+    }
+
+    button.closest("tr").remove();
+
+    calculateTotals();
+}
+window.onload=function()
+{
+    calculateTotals();
+}
+
+</script>
+</body>
+</html>

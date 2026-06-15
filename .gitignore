@@ -1,6 +1,11 @@
 .env
 __pycache__/
 *.pyc
+
+
+
+
 venv/
 pdfs/
+uploads/
 .DS_Store

@@ -493,25 +493,18 @@
 
                     
 
-                    <!-- PDF -->
+<!-- PDF -->
 
-                    <td>
+<td>
 
-                        {% if row.pdf_file %}
+    <a
+        href="/download-pdf/{{ row.pdf_file }}"
+        class="download-btn"
+    >
+        Download PDF
+    </a>
 
-                        <a
-                            href="/download-pdf/{{ row.pdf_file }}"
-                            class="download-btn"
-                        >
-
-                            Download PDF
-
-                        </a>
-
-                        {% endif %}
-
-                    </td>
-
+</td>
                 </tr>
 
                 {% endfor %}

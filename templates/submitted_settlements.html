@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Submitted Settlements</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+
+<div class="sidebar">
+
+    <div class="sidebar-logo">
+
+        <img
+            src="{{ url_for('static', filename='images/logo.png') }}"
+            class="sidebar-image"
+            alt="Logo"
+        >
+
+    </div>
+
+    <ul>
+
+        <li onclick="window.location.href='/'">
+            Dashboard
+        </li>
+
+        <li onclick="window.location.href='/new-request'">
+            New Request
+        </li>
+
+        <li onclick="window.location.href='/settlements'">
+            Travel Settlement
+        </li>
+
+        <li class="active-menu">
+            Travel Submitted
+        </li>
+
+        <li onclick="window.location.href='/profile'">
+            Profile
+        </li>
+
+        <li onclick="window.location.href='/logout'">
+            Logout
+        </li>
+
+    </ul>
+
+</div>
+
+<!-- MAIN CONTENT -->
+
+<div class="dashboard-container">
+
+    <div class="container">
+
+        <h1 class="title">
+            Submitted Settlements
+        </h1>
+
+        <div class="table-container">
+
+            <table class="history-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>ID</th>
+
+                        <th>Employee</th>
+
+                        <th>Project</th>
+
+                        <th>Site</th>
+
+                        <th>Status</th>
+
+                        <th>Request PDF</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for row in requests_data %}
+
+                    <tr>
+
+                        <td>{{ row.id }}</td>
+
+                        <td>{{ row.emp_name }}</td>
+
+                        <td>{{ row.project_name }}</td>
+
+                        <td>{{ row.site_name }}</td>
+
+                        <td>
+
+                            <span style="color:#00ff88;font-weight:bold;">
+
+                                Submitted ✅
+
+                            </span>
+
+                        </td>
+
+                        <td>
+
+                            {% if row.pdf_file %}
+
+                            <a
+href="/download-settlement-pdf/{{ row.id }}"
+class="download-btn">
+Download Settlement PDF
+</a>
+                            {% endif %}
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>

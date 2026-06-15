@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1.0"
+
+>
+
+<title>Upload Files</title>
+
+<link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='style.css') }}"
+>
+
+<style>
+
+.page-container{
+
+    margin-left:240px;
+
+    padding:40px;
+}
+
+.upload-card{
+
+    background:rgba(255,255,255,0.10);
+
+    backdrop-filter:blur(12px);
+
+    border-radius:20px;
+
+    padding:35px;
+
+    color:white;
+}
+
+.upload-title{
+
+    font-size:42px;
+
+    margin-bottom:25px;
+}
+
+.file-input{
+
+    width:100%;
+
+    padding:16px;
+
+    border-radius:10px;
+
+    border:none;
+
+    margin-bottom:20px;
+}
+
+.upload-btn{
+
+    background:#0ea5b7;
+
+    color:white;
+
+    border:none;
+
+    padding:14px 22px;
+
+    border-radius:10px;
+
+    font-size:16px;
+
+    cursor:pointer;
+
+    font-weight:bold;
+}
+
+.upload-btn:hover{
+
+    opacity:0.9;
+}
+
+.file-table{
+
+    width:100%;
+
+    margin-top:30px;
+
+    border-collapse:collapse;
+}
+
+.file-table th{
+
+    background:#0ea5b7;
+
+    padding:14px;
+
+    color:white;
+}
+
+.file-table td{
+
+    background:rgba(255,255,255,0.08);
+
+    padding:14px;
+
+    color:white;
+}
+
+.download-btn{
+
+    background:#00bcd4;
+
+    color:white;
+
+    padding:10px 14px;
+
+    border-radius:8px;
+
+    text-decoration:none;
+
+    font-weight:bold;
+}
+.delete-btn{
+
+    background:#ff4d4d;
+
+    color:white;
+
+    padding:10px 14px;
+
+    border-radius:8px;
+
+    text-decoration:none;
+
+    font-weight:bold;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="sidebar">
+
+```
+<div class="sidebar-logo">
+
+    <img
+        src="{{ url_for('static', filename='images/logo.png') }}"
+        class="sidebar-image"
+    >
+
+</div>
+
+<ul>
+
+    <li onclick="window.location.href='/'">
+        Dashboard
+    </li>
+
+    <li onclick="window.location.href='/history'">
+        History
+    </li>
+<li onclick="window.location.href='/settlements'">
+    Travel Settlement
+</li>
+    <li onclick="window.location.href='/profile'">
+        Profile
+    </li>
+
+</ul>
+```
+
+</div>
+
+<div class="page-container">
+
+```
+<div class="upload-card">
+
+    <h1 class="upload-title">
+
+        Upload Bills / Receipts
+
+    </h1>
+
+    <h3>
+
+        Request ID:
+        {{ request_data.id }}
+
+    </h3>
+
+    <form
+        method="POST"
+        action="/save-files/{{ request_data.id }}"
+        enctype="multipart/form-data"
+    >
+
+        <input
+            type="file"
+            name="expense_files"
+            multiple
+            class="file-input"
+        >
+
+        <button
+            type="submit"
+            class="upload-btn"
+        >
+
+            Upload Files
+
+        </button>
+
+    </form>
+
+    <table class="file-table">
+
+        <thead>
+
+            <tr>
+
+                <th>File Name</th>
+
+                <th>Uploaded At</th>
+
+                <th>Download</th>
+
+                <th>Delete</th>
+
+            </tr>
+
+        </thead>
+
+        <tbody>
+
+            {% for file in files %}
+
+            <tr>
+
+                <td>
+                    {{ file.original_filename }}
+                </td>
+
+                <td>
+                    {{ file.uploaded_at }}
+                </td>
+
+                <td>
+
+                    <a
+                        href="/download-file/{{ file.stored_filename }}"
+                        class="download-btn"
+                    >
+
+                        Download
+
+                    </a>
+
+                </td>
+                <td>
+
+    <a
+    href="/delete-file/{{ file.id }}"
+    class="delete-btn"
+    onclick="return confirm('Delete this file?')"
+>
+        Delete
+    </a>
+
+</td>
+
+            </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+```
+
+</div>
+
+</body>
+
+</html>

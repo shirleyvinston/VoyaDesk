@@ -202,39 +202,49 @@
     <!-- MENU -->
 
     <ul>
+<li onclick="window.location.href='/'">
+    Dashboard
+</li>
 
-        <li onclick="window.location.href='/'">
-            Dashboard
-        </li>
+<li onclick="window.location.href='/new-request'">
+    New Request
+</li>
 
-        <li onclick="window.location.href='/new-request'">
-            New Request
-        </li>
+{% if session['role'] in ['ceo', 'admin'] %}
 
-        {% if session['role'] in ['ceo', 'admin'] %}
+<li onclick="window.location.href='/analytics'">
+    Analytics
+</li>
 
-        <li onclick="window.location.href='/analytics'">
-            Analytics
-        </li>
+<li onclick="window.location.href='/history'">
+    History
+</li>
 
-        <li onclick="window.location.href='/history'">
-            History
-        </li>
+<li onclick="window.location.href='/settings'">
+    Settings
+</li>
 
-        <li onclick="window.location.href='/settings'">
-            Settings
-        </li>
+{% endif %}
 
-        {% endif %}
+<li onclick="window.location.href='/settlements'">
+    Travel Settlement
+</li>
 
-        <li class="active-menu">
-            Profile
-        </li>
+{% if session['role'] == 'accounts' %}
 
-        <li onclick="window.location.href='/logout'">
-            Logout
-        </li>
+<li onclick="window.location.href='/submitted-settlements'">
+    Travel Submitted
+</li>
 
+{% endif %}
+
+<li class="active-menu">
+    Profile
+</li>
+
+<li onclick="window.location.href='/logout'">
+    Logout
+</li>
     </ul>
 
 </div>
@@ -271,11 +281,8 @@
 
                         </th>
 
-                        <th class="status-column">
-
-                            Status
-
-                        </th>
+                        <th>Travel Request Status</th>
+                        <th>Travel Settlement Status</th>
 
                     </tr>
 
@@ -314,37 +321,66 @@
 
                         <!-- STATUS -->
 
-                        <td class="status-column">
-
+                        <td>
 
 {% if row.status == 'Approved' %}
-
 <span style="color:#00ff88;font-weight:bold;">
     Approved ✅
 </span>
 
 {% elif row.status == 'Declined' %}
-
 <span style="color:#ff4d4d;font-weight:bold;">
     Declined ❌
 </span>
 
 {% elif 'Query' in row.status %}
-
 <span style="color:orange;font-weight:bold;">
-    {{ row.status }} ❓
+    {{ row.status }}
 </span>
 
 {% else %}
+<span style="color:gold;font-weight:bold;">
+    Pending ⏳
+</span>
+{% endif %}
+
+</td>
+
+<td>
+
+{% if row.status == 'Declined' %}
+
+<span style="color:#888888;">
+    N/A
+</span>
+
+{% elif row.settlement_status == 'Submitted' %}
+
+<span style="color:#00ff88;font-weight:bold;">
+    Submitted ✅
+</span>
+
+{% elif row.settlement_status == 'Draft' %}
+
+<span style="color:orange;font-weight:bold;">
+    Draft 📝
+</span>
+
+{% elif row.settlement_status == 'Pending' %}
 
 <span style="color:gold;font-weight:bold;">
     Pending ⏳
 </span>
 
+{% else %}
+
+<span style="color:#cccccc;">
+    Not Started
+</span>
+
 {% endif %}
 
-
-                        </td>
+</td>
 
                     </tr>
 

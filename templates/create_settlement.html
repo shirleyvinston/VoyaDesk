@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>Travel Settlement</title>
+
+<link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='style.css') }}"
+>
+
+<style>
+
+.main-content{
+    margin-left:240px;
+    width:calc(100% - 240px);
+    padding:40px;
+    box-sizing:border-box;
+}
+
+.request-container{
+    background:rgba(255,255,255,0.10);
+    backdrop-filter:blur(12px);
+    border-radius:25px;
+    padding:40px;
+    color:white;
+}
+
+.page-title{
+    text-align:center;
+    font-size:56px;
+    margin-bottom:40px;
+    font-weight:bold;
+}
+
+.settlement-layout{
+    display:grid;
+    grid-template-columns: 2.2fr 1fr;
+    gap:40px;
+    align-items:start;
+}
+
+.left-panel{
+    background:rgba(255,255,255,0.08);
+    border-radius:20px;
+    overflow:hidden;
+    border:1px solid rgba(255,255,255,0.15);
+}
+
+.info-row{
+    display:grid;
+    grid-template-columns:250px 1fr;
+    border-bottom:1px solid rgba(255,255,255,0.15);
+}
+
+.info-label{
+    padding:18px;
+    font-weight:700;
+    background:rgba(0,0,0,0.15);
+}
+
+.info-value{
+    padding:12px;
+}
+
+.info-value input{
+    width:100%;
+    height:48px;
+    border:none;
+    border-radius:10px;
+    padding:0 15px;
+    font-size:16px;
+    box-sizing:border-box;
+}
+
+.readonly-input{
+    background:#e8f0fe;
+}
+
+.right-panel{
+    background:rgba(255,255,255,0.12);
+    border-radius:20px;
+    padding:25px;
+    position:sticky;
+    top:20px;
+}
+
+.right-panel h2{
+    margin-top:0;
+    margin-bottom:25px;
+}
+
+.summary-item{
+    margin-bottom:18px;
+}
+
+.summary-item label{
+    display:block;
+    margin-bottom:8px;
+    font-weight:700;
+}
+
+.summary-item input{
+    width:100%;
+    height:48px;
+    border:none;
+    border-radius:10px;
+    padding:0 15px;
+    box-sizing:border-box;
+    background:white;
+    font-weight:bold;
+}
+
+.submit-btn{
+    width:100%;
+    height:60px;
+    margin-top:35px;
+    border:none;
+    border-radius:15px;
+    background:#0ea5b7;
+    color:white;
+    font-size:22px;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+.submit-btn:hover{
+    opacity:0.9;
+}
+
+@media(max-width:1100px){
+
+    .settlement-layout{
+        grid-template-columns:1fr;
+    }
+
+    .right-panel{
+        position:static;
+    }
+
+    .info-row{
+        grid-template-columns:1fr;
+    }
+}
+</style>
+
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+
+<div class="sidebar">
+
+    <div class="sidebar-logo">
+
+        <img
+            src="{{ url_for('static', filename='images/logo.png') }}"
+            class="sidebar-image"
+        >
+
+    </div>
+
+    <ul>
+
+        <li onclick="window.location.href='/'">
+            Dashboard
+        </li>
+
+        <li onclick="window.location.href='/new-request'">
+            New Request
+        </li>
+
+        <li onclick="window.location.href='/analytics'">
+            Analytics
+        </li>
+
+        <li onclick="window.location.href='/history'">
+            History
+        </li>
+
+        <li class="active-menu">
+            Travel Settlement
+        </li>
+
+        <li onclick="window.location.href='/profile'">
+            Profile
+        </li>
+
+        <li onclick="window.location.href='/logout'">
+            Logout
+        </li>
+
+    </ul>
+
+</div>
+
+<!-- MAIN CONTENT -->
+
+<div class="main-content">
+    <div class="request-container">
+
+        <h1 class="page-title">
+            Travel Settlement
+        </h1>
+
+        <form method="POST">
+
+            <div class="settlement-layout">
+                <div class="left-panel">
+
+    <div class="info-row">
+        <div class="info-label">Employee Name</div>
+        <div class="info-value">
+            <input type="text"
+                   value="{{ request_data.emp_name }}"
+                   readonly
+                   class="readonly-input">
+        </div>
+    </div>
+
+    <div class="info-row">
+        <div class="info-label">Designation</div>
+        <div class="info-value">
+            <input type="text"
+                   value="{{ request_data.designation }}"
+                   readonly
+                   class="readonly-input">
+        </div>
+    </div>
+
+    <div class="info-row">
+        <div class="info-label">Place Of Posting</div>
+        <div class="info-value">
+            <input type="text"
+                   value="{{ request_data.posted_at }}"
+                   readonly
+                   class="readonly-input">
+        </div>
+    </div>
+
+    <div class="info-row">
+        <div class="info-label">Place Of Visit</div>
+        <div class="info-value">
+            <input type="text"
+                   value="{{ request_data.site_name }}"
+                   readonly
+                   class="readonly-input">
+        </div>
+    </div>
+
+    <div class="info-row">
+        <div class="info-label">Project Code</div>
+        <div class="info-value">
+            <input type="text"
+                   value="{{ request_data.project_name }}"
+                   readonly
+                   class="readonly-input">
+        </div>
+    </div>
+
+    <div class="info-row">
+        <div class="info-label">Project Reference</div>
+        <div class="info-value">
+            <input
+    type="text"
+    name="project_reference"
+    value="{{ settlement.project_reference if settlement else '' }}"
+>
+        </div>
+    </div>
+
+    <div class="info-row">
+        <div class="info-label">Date Of Departure</div>
+        <div class="info-value">
+            <input type="date"
+                   value="{{ request_data.departure_date }}"
+                   readonly
+                   class="readonly-input">
+        </div>
+    </div>
+
+    <div class="info-row">
+        <div class="info-label">Date Of Arrival</div>
+        <div class="info-value">
+            <input
+    type="date"
+    name="arrival_date"
+    value="{{ settlement.arrival_date if settlement else '' }}"
+    required
+>
+        </div>
+    </div>
+
+    <div class="info-row">
+        <div class="info-label">Advance Received</div>
+        <div class="info-value">
+            <input type="number"
+                   value="{{ request_data.amount_requested }}"
+                   readonly
+                   class="readonly-input">
+        </div>
+    </div>
+
+    <div class="info-row">
+        <div class="info-label">Expense Incurred</div>
+        <div class="info-value">
+            <input type="number"
+                   value="{{ settlement.expense_incurred if settlement else 0 }}"
+                   readonly
+                   class="readonly-input">
+        </div>
+    </div>
+
+    <div class="info-row">
+        <div class="info-label">Due From / To Company</div>
+        <div class="info-value">
+            <input type="text"
+                   value="{% if settlement %}
+{% if settlement.due_amount >= 0 %}
+Due From Company : {{ settlement.due_amount }}
+{% else %}
+Due To Company : {{ settlement.due_amount|abs }}
+{% endif %}
+{% endif %}"
+                   readonly
+                   class="readonly-input">
+        </div>
+    </div>
+
+</div>
+
+<div class="right-panel">
+
+    <h2>Claim Summary</h2>
+
+    <div class="summary-box">
+
+        <div class="summary-item">
+            <label>Travelling Expenses</label>
+            <input type="text"
+                   value="{{ settlement.travelling_total if settlement else 0 }}"
+                   readonly>
+        </div>
+
+        <div class="summary-item">
+            <label>Conveyance Expenses</label>
+            <input type="text"
+                   value="{{ settlement.conveyance_total if settlement else 0 }}"
+                   readonly>
+        </div>
+
+        <div class="summary-item">
+            <label>Food Expenses</label>
+            <input type="text"
+                   value="{{ settlement.food_total if settlement else 0 }}"
+                   readonly>
+        </div>
+
+        <div class="summary-item">
+            <label>Accommodation Expenses</label>
+            <input type="text"
+                   value="{{ settlement.hotel_total if settlement else 0 }}"
+                   readonly>
+        </div>
+
+        <div class="summary-item">
+            <label>Others Expenses</label>
+            <input type="text"
+                   value="{{ settlement.others_total if settlement else 0 }}"
+                   readonly>
+        </div>
+
+        <div class="summary-item">
+            <label>Office Expenses</label>
+            <input type="text"
+                   value="{{ settlement.office_total if settlement else 0 }}"
+                   readonly>
+        </div>
+
+        <div class="summary-item">
+            <label>Total Expense</label>
+            <input type="text"
+                   value="{{ settlement.expense_incurred if settlement else 0 }}"
+                   readonly>
+        </div>
+
+    </div>
+
+</div>
+
+</div> <!-- settlement-layout ends here -->
+            <button
+                type="submit"
+                class="submit-btn"
+            >
+                Next →
+            </button>
+
+        </form>
+
+    </div>
+</div>
+</body>
+</html>
