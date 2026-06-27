@@ -449,11 +449,48 @@ def profile():
 @request_routes.route('/history')
 @login_required
 def history():
-
+    employee = request.args.get('employee', '')
+    project = request.args.get('project', '')
+    site = request.args.get('site', '')
     db, cursor = get_db_connection()
 
     try:
-
+        if session.get('role') == 'admin':
+            query = """
+                SELECT *
+                FROM travel_requests
+                WHERE admin_approval IN ('Pending','Query')
+            """
+        elif session.get('role') == 'ceo':
+            query = """
+                SELECT *
+                FROM travel_requests
+                WHERE admin_approval='Approved'
+                AND ceo_approval IN ('Pending','Query')
+            """
+        else:
+            abort(403)
+        params = []
+        if employee:
+            query += """
+                AND emp_name=%s
+            """
+            params.append(employee)
+        if project:
+            query += """
+                AND project_name=%s
+            """
+            params.append(project)
+        if site:
+            query += """
+                AND site_name=%s
+            """
+            params.append(site)
+        query += """
+            ORDER BY id DESC
+        """
+        cursor.execute(query, tuple(params))
+        requests_data = cursor.fetchall()
         # ADMIN CAN SEE EMPLOYEE REQUESTS
 
         if session.get('role') == 'admin':
@@ -482,10 +519,30 @@ def history():
             abort(403)
 
         requests_data = cursor.fetchall()
-
+        cursor.execute("""
+            SELECT DISTINCT emp_name
+            FROM travel_requests
+            ORDER BY emp_name
+        """)
+        employees = cursor.fetchall()
+        cursor.execute("""
+            SELECT DISTINCT project_name
+            FROM travel_requests
+            ORDER BY project_name
+        """)
+        projects = cursor.fetchall()
+        cursor.execute("""
+            SELECT DISTINCT site_name
+            FROM travel_requests
+            ORDER BY site_name
+        """)
+        sites = cursor.fetchall()
         return render_template(
             'history.html',
-            requests_data=requests_data
+            requests_data=requests_data,
+            employees=employees,
+            projects=projects,
+            sites=sites
         )
 
     finally:

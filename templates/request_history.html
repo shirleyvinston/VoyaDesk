@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Request Logs</title>
+</head>
+<body>
+
+<h1>Request Audit Trail</h1>
+
+<table border="1">
+
+<tr>
+    <th>User</th>
+    <th>Action</th>
+    <th>Remarks</th>
+    <th>Time</th>
+</tr>
+
+{% for log in logs %}
+
+<tr>
+    <td>{{ log.action_by }}</td>
+    <td>{{ log.action_type }}</td>
+    <td>{{ log.remarks }}</td>
+    <td>{{ log.action_time }}</td>
+</tr>
+
+{% endfor %}
+
+</table>
+
+</body>
+</html>

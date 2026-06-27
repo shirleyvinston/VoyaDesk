@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>
+AI Insights
+</title>
+
+<link
+rel="stylesheet"
+href="{{ url_for('static', filename='style.css') }}"
+>
+
+</head>
+
+<body>
+
+<div class="sidebar">
+
+    <div class="sidebar-logo">
+
+        <img
+        src="{{ url_for('static',
+        filename='images/logo.png') }}"
+        class="sidebar-image"
+        >
+
+    </div>
+
+    <ul>
+
+        <li onclick="window.location.href='/'">
+            Dashboard
+        </li>
+<li onclick="window.location.href='/new-request'">
+            New Request
+        </li>
+        {% if session.role == 'admin'
+   or session.role == 'ceo' %}
+
+        <li onclick="window.location.href='/analytics'">
+            Analytics
+        </li>
+
+        <li class="active-menu">
+            AI Insights
+        </li>
+<li onclick="window.location.href='/history'">
+            History
+        </li>
+        <li onclick="window.location.href='/settings'">
+            Settings
+        </li>
+        {% endif %}
+        <li onclick="window.location.href='/settlements'">
+    Travel Settlement
+</li>
+{% if session['role'] == 'accounts' %}
+<li onclick="window.location.href='/submitted-settlements'">
+    Travel Submitted
+</li>
+{% endif %}
+        <li onclick="window.location.href='/profile'">
+            Profile
+        </li>
+
+        <li onclick="window.location.href='/logout'">
+            Logout
+        </li>
+    </ul>
+
+</div>
+
+<div class="dashboard-container">
+
+    <div class="container">
+
+        <h1 class="title">
+
+            AI Insights
+
+        </h1>
+
+        <div class="ai-summary-card">
+
+    <h2>🤖 AI Executive Summary</h2>
+
+    <p>
+        {{ dashboard.summary }}
+    </p>
+
+</div>
+
+<div class="kpi-grid">
+
+    <div class="kpi-card">
+        <h3>Total Spending</h3>
+        <h1>
+            ₹{{ "{:,.0f}".format(
+                dashboard.total_expense
+            ) }}
+        </h1>
+    </div>
+
+    <div class="kpi-card">
+        <h3>Highest Spending Employee</h3>
+        <h1>
+            {{ dashboard.top_employee }}
+        </h1>
+    </div>
+
+    <div class="kpi-card">
+        <h3>Highest Spending Project</h3>
+        <h1>
+            {{ dashboard.top_project }}
+        </h1>
+    </div>
+<div class="kpi-card">
+
+        <h3>Monthly Growth</h3>
+
+        <h1>{{ dashboard.growth|round(1) }}%</h1>
+
+    </div>
+</div>
+
+<div class="risk-grid">
+
+    <div class="risk-card high">
+        HIGH RISK
+        <h1>
+            {{ dashboard.high_risk_count }}
+        </h1>
+    </div>
+
+    <div class="risk-card medium">
+        MEDIUM RISK
+        <h1>
+            {{ dashboard.medium_risk_count }}
+        </h1>
+    </div>
+
+    <div class="risk-card low">
+        LOW RISK
+        <h1>
+            {{ dashboard.low_risk_count }}
+        </h1>
+    </div>
+<div class="recommendation-panel">
+
+    <h2>🧠 AI Recommendations</h2>
+
+    <ul>
+
+        {% if dashboard.high_risk_count > 0 %}
+        <li>
+            Review all high-risk settlements immediately.
+        </li>
+        {% endif %}
+
+        {% if dashboard.growth > 20 %}
+        <li>
+            Travel spending increased significantly this month.
+        </li>
+        {% endif %}
+
+        <li>
+            Focus cost optimization efforts on
+            {{ dashboard.top_project }}.
+        </li>
+
+        <li>
+            Most travel activity occurred in
+            {{ dashboard.top_site }}.
+        </li>
+
+    </ul>
+
+</div>
+</div>
+
+    </div>
+
+</div>
+
+</body>
+</html>

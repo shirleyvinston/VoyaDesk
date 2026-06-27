@@ -14,7 +14,128 @@
         rel="stylesheet"
         href="{{ url_for('static', filename='style.css') }}"
     >
+<style>
 
+.filter-bar{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:15px;
+
+    margin-bottom:30px;
+
+    justify-content:center;
+}
+
+.filter-bar input{
+
+    width:220px;
+
+    padding:14px;
+
+    border:none;
+
+    border-radius:12px;
+
+    font-size:18px;
+}
+
+.search-btn{
+
+    width:52px;
+
+    height:52px;
+
+    border:none;
+
+    border-radius:50%;
+
+    background:#00c8ff;
+
+    color:white;
+
+    font-size:22px;
+
+    cursor:pointer;
+
+    transition:0.3s;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    box-shadow:
+        0 4px 15px rgba(0,0,0,0.25);
+}
+
+.search-btn:hover{
+
+    transform:scale(1.08);
+
+    background:#00e1ff;
+}
+.action-buttons{
+
+    display:flex;
+
+    gap:10px;
+
+}
+
+.approve-btn{
+
+    background:#00c853;
+
+    color:white;
+
+    border:none;
+
+    padding:10px 16px;
+
+    border-radius:8px;
+
+    cursor:pointer;
+
+    font-weight:bold;
+
+}
+
+.decline-btn{
+
+    background:#ff4444;
+
+    color:white;
+
+    border:none;
+
+    padding:10px 16px;
+
+    border-radius:8px;
+
+    cursor:pointer;
+
+    font-weight:bold;
+
+}
+.risk-high{
+    color:red;
+    font-weight:bold;
+}
+
+.risk-medium{
+    color:orange;
+    font-weight:bold;
+}
+
+.risk-low{
+    color:green;
+    font-weight:bold;
+}
+</style>
 </head>
 
 <body>
@@ -42,15 +163,32 @@
         <li onclick="window.location.href='/new-request'">
             New Request
         </li>
+{% if session.role == 'admin'
+   or session.role == 'ceo' %}
+        <li onclick="window.location.href='/analytics'">
+            Analytics
+        </li>
 
+<li onclick="window.location.href='/ai-insights'">
+    AI Insights
+</li>
+
+        <li onclick="window.location.href='/history'">
+            History
+        </li>
+
+        <li onclick="window.location.href='/settings'">
+            Settings
+        </li>
+{% endif %}
         <li onclick="window.location.href='/settlements'">
             Travel Settlement
         </li>
-
+{% if session['role'] == 'accounts' %}
         <li class="active-menu">
             Travel Submitted
         </li>
-
+{% endif %}
         <li onclick="window.location.href='/profile'">
             Profile
         </li>
@@ -72,7 +210,80 @@
         <h1 class="title">
             Submitted Settlements
         </h1>
+<form method="GET" class="filter-bar">
+    <select
+    name="employee"
+    onchange="autoSearch()"
+>
 
+    <option value="">
+        Select Employee
+    </option>
+
+    {% for emp in employees %}
+
+    <option
+        value="{{ emp.emp_name }}"
+    >
+
+        {{ emp.emp_name }}
+
+    </option>
+
+    {% endfor %}
+
+</select>
+<select
+    name="project"
+    onchange="autoSearch()"
+>
+
+    <option value="">
+        Select Project 
+    </option>
+
+    {% for project in projects %}
+
+    <option
+        value="{{ project.project_name }}"
+    >
+
+        {{ project.project_name }}
+
+    </option>
+
+    {% endfor %}
+
+</select>
+    <select
+    name="site"
+    onchange="autoSearch()"
+>
+
+    <option value="">
+        Select Site
+    </option>
+
+    {% for site in sites %}
+
+    <option
+        value="{{ site.site_name }}"
+    >
+
+        {{ site.site_name }}
+
+    </option>
+
+    {% endfor %}
+
+</select>
+    <button
+    type="submit"
+    class="search-btn"
+>
+    🔍
+</button>
+</form>
         <div class="table-container">
 
             <table class="history-table">
@@ -81,17 +292,18 @@
 
                     <tr>
 
-                        <th>ID</th>
-
                         <th>Employee</th>
 
                         <th>Project</th>
 
                         <th>Site</th>
-
-                        <th>Status</th>
-
+                       <th>Risk</th>
+                        <th class="recommendation-col">
+    AI Recommendation
+</th>
+ <th>Action</th>
                         <th>Request PDF</th>
+
 
                     </tr>
 
@@ -103,8 +315,6 @@
 
                     <tr>
 
-                        <td>{{ row.id }}</td>
-
                         <td>{{ row.emp_name }}</td>
 
                         <td>{{ row.project_name }}</td>
@@ -112,15 +322,41 @@
                         <td>{{ row.site_name }}</td>
 
                         <td>
+{% if row.risk_level == 'HIGH' %}
+    <span class="risk-high">HIGH</span>
 
-                            <span style="color:#00ff88;font-weight:bold;">
+{% elif row.risk_level == 'MEDIUM' %}
+    <span class="risk-medium">MEDIUM</span>
 
-                                Submitted ✅
+{% else %}
+    <span class="risk-low">LOW</span>
+{% endif %}
+</td>
 
-                            </span>
+<td class="recommendation-col">
+    {{ row.recommendation }}
+</td>
+                        <td>
 
-                        </td>
+    <div class="action-buttons">
 
+        <a
+            href="/approve-settlement/{{ row.id }}"
+            class="approve-btn"
+        >
+            Approve
+        </a>
+
+        <a
+            href="/decline-settlement/{{ row.id }}"
+            class="decline-btn"
+        >
+            Decline
+        </a>
+
+    </div>
+
+</td>
                         <td>
 
                             {% if row.pdf_file %}
@@ -147,6 +383,16 @@ Download Settlement PDF
     </div>
 
 </div>
+<script>
 
+function autoSearch(){
+
+    document.getElementById(
+        "filterForm"
+    ).submit();
+
+}
+
+</script>
 </body>
 </html>

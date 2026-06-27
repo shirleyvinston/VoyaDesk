@@ -151,21 +151,30 @@ canvas{
         <li onclick="window.location.href='/new-request'">
             New Request
         </li>
-
+{% if session.role == 'admin'
+   or session.role == 'ceo' %}
         <li class="active-menu">
             Analytics
         </li>
 
+<li onclick="window.location.href='/ai-insights'">
+    AI Insights
+</li>
         <li onclick="window.location.href='/history'">
             History
         </li>
         <li onclick="window.location.href='/settings'">
             Settings
         </li>
+        {% endif %}
         <li onclick="window.location.href='/settlements'">
     Travel Settlement
 </li>
-
+{% if session['role'] == 'accounts' %}
+<li onclick="window.location.href='/submitted-settlements'">
+    Travel Submitted
+</li>
+{% endif %}
         <li onclick="window.location.href='/profile'">
             Profile
         </li>

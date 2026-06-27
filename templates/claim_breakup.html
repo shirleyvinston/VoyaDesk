@@ -24,20 +24,48 @@
     </div>
 
     <ul>
-    <li onclick="window.location.href='/'">Dashboard</li>
-    <li onclick="window.location.href='/new-request'">New Request</li>
-    <li onclick="window.location.href='/analytics'">Analytics</li>
-    <li onclick="window.location.href='/history'">History</li>
-    <li class="active-menu">Travel Settlement</li>
 
-    <li onclick="window.location.href='/profile'">
-        Profile
-    </li>
+        <li onclick="window.location.href='/'">
+            Dashboard
+        </li>
 
-    <li onclick="window.location.href='/logout'">
-        Logout
-    </li>
-</ul>
+        <li onclick="window.location.href='/new-request'">
+            New Request
+        </li>
+{% if session.role == 'admin'
+   or session.role == 'ceo' %}
+        <li onclick="window.location.href='/analytics'">
+            Analytics
+        </li>
+
+
+<li onclick="window.location.href='/ai-insights'">
+    AI Insights
+</li>
+        <li onclick="window.location.href='/history'">
+            History
+        </li>
+        <li onclick="window.location.href='/settings'">
+            Settings
+        </li>
+        {% endif %}
+        <li onclick="window.location.href='/settlements'">
+    Travel Settlement
+</li>
+{% if session['role'] == 'accounts' %}
+<li onclick="window.location.href='/submitted-settlements'">
+    Travel Submitted
+</li>
+{% endif %}
+        <li onclick="window.location.href='/profile'">
+            Profile
+        </li>
+
+        <li onclick="window.location.href='/logout'">
+            Logout
+        </li>
+
+    </ul>
 
 </div>
 

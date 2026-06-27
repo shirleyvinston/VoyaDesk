@@ -5,7 +5,9 @@ from flask import (
     Blueprint,
     redirect,
     session,
-    abort
+    abort,
+    request,
+    render_template
 )
 from flask_mail import Message
 
@@ -356,66 +358,54 @@ Purpose:
 
         cursor.close()
         db.close()
-# =========================================
-# QUERY REQUEST
-# =========================================
-
-@approval_routes.route('/query/<int:id>')
+@approval_routes.route(
+    '/send-query/<int:id>',
+    methods=['POST']
+)
 @login_required
-def query_request(id):
-
-    if session.get('role') not in ['admin', 'ceo']:
-        abort(403)
+def send_query(id):
 
     db, cursor = get_db_connection()
 
     try:
 
-        query_person = session['emp_name'].title()
+        query_message = request.form['query_message']
 
-        # =========================================
-        # ADMIN QUERY
-        # =========================================
+        query_person = session['emp_name']
+
+        # Update request
 
         if session.get('role') == 'admin':
 
-            status_text = f"{query_person} Query"
-
             cursor.execute("""
                 UPDATE travel_requests
                 SET
-                    status=%s,
-                    admin_approval='Query'
+                    status='Query',
+                    admin_approval='Query',
+                    query_message=%s
                 WHERE id=%s
             """, (
-                status_text,
+                query_message,
                 id
             ))
 
-        # =========================================
-        # CEO QUERY
-        # =========================================
-
         elif session.get('role') == 'ceo':
-
-            status_text = f"{query_person} Query"
 
             cursor.execute("""
                 UPDATE travel_requests
                 SET
-                    status=%s,
-                    ceo_approval='Query'
+                    status='Query',
+                    ceo_approval='Query',
+                    query_message=%s
                 WHERE id=%s
             """, (
-                status_text,
+                query_message,
                 id
             ))
 
         db.commit()
 
-        # =========================================
-        # FETCH TRAVEL REQUEST
-        # =========================================
+        # Get request
 
         cursor.execute("""
             SELECT *
@@ -425,9 +415,7 @@ def query_request(id):
 
         travel = cursor.fetchone()
 
-        # =========================================
-        # FETCH EMPLOYEE EMAIL
-        # =========================================
+        # Get employee email
 
         cursor.execute("""
             SELECT *
@@ -439,21 +427,17 @@ def query_request(id):
 
         employee_email = employee['email']
 
-        # =========================================
-        # EMAIL MESSAGE
-        # =========================================
+        # Email
 
         msg = Message(
-
             subject=f"Travel Request Query - {travel['emp_name']}",
-
             recipients=[employee_email]
-
         )
-        msg.body = f"""
-Your travel request has been marked as QUERY.
 
-Query Raised By:
+        msg.body = f"""
+Your travel request requires clarification.
+
+Raised By:
 {query_person}
 
 Project:
@@ -465,39 +449,14 @@ Site:
 Purpose:
 {travel['purpose']}
 
-Please contact the above person for clarification.
+Query Details:
+
+{query_message}
+
+Please update your request and respond.
 """
 
-        # =========================================
-        # ATTACH PDF
-        # =========================================
-
-        pdf_path = os.path.join(
-            'pdfs',
-            travel['pdf_file']
-        )
-
-        if os.path.exists(pdf_path):
-            with open(pdf_path, 'rb') as pdf:
-                msg.attach(
-                    filename=travel['pdf_file'],
-                    content_type='application/pdf',
-                    data=pdf.read()
-                )
-
-        # =========================================
-        # SEND EMAIL
-        # =========================================
-
-        try:
-
-            mail.send(msg)
-
-            logging.info("QUERY EMAIL SENT SUCCESSFULLY")
-
-        except Exception as e:
-
-            logging.error(f"QUERY EMAIL ERROR: {str(e)}")
+        mail.send(msg)
 
         return redirect('/history')
 
@@ -505,16 +464,9 @@ Please contact the above person for clarification.
 
         cursor.close()
         db.close()
-# =========================================
-# QUERY PAGE
-# =========================================
-
 @approval_routes.route('/query-page/<int:id>')
 @login_required
 def query_page(id):
-
-    if session.get('role') not in ['admin', 'ceo']:
-        abort(403)
 
     db, cursor = get_db_connection()
 

@@ -86,27 +86,32 @@
         <li onclick="window.location.href='/new-request'">
             New Request
         </li>
-
-        <!-- ANALYTICS -->
-
+        {% if session.role == 'admin'
+   or session.role == 'ceo' %}
         <li onclick="window.location.href='/analytics'">
             Analytics
         </li>
 
-        <!-- HISTORY -->
+<li onclick="window.location.href='/ai-insights'">
+    AI Insights
+</li>
 
         <li onclick="window.location.href='/history'">
             History
         </li>
-        <!-- SETTINGS -->
 
-        <li class="active-menu">
+        <li onclick="window.location.href='/settings'">
             Settings
         </li>
+{% endif %}
 <li onclick="window.location.href='/settlements'">
     Travel Settlement
 </li>
-
+{% if session['role'] == 'accounts' %}
+<li onclick="window.location.href='/submitted-settlements'">
+    Travel Submitted
+</li>
+{% endif %}
         <!-- PROFILE -->
 
         <li onclick="window.location.href='/profile'">

@@ -7,7 +7,9 @@ from flask import (
     session,
     abort
 )
-
+from services.insight_service import (
+    generate_ai_insights
+)
 from database.db import get_db_connection
 from utils.decorators import login_required
 
@@ -58,6 +60,17 @@ def analytics():
         """)
 
         pending_requests = cursor.fetchone()['total']
+        cursor.execute("""
+            SELECT
+                COALESCE(
+                    SUM(expense_incurred),
+                    0
+                ) AS total_expenses
+            FROM travel_settlements
+        """)
+        total_expenses = cursor.fetchone()[
+            'total_expenses'
+        ]
 
         cursor.execute("""
             SELECT DISTINCT emp_name
@@ -71,6 +84,7 @@ def analytics():
             total_requests=total_requests,
             approved_requests=approved_requests,
             pending_requests=pending_requests,
+            total_expenses=total_expenses,
             employees=employees
         )
 
@@ -315,5 +329,56 @@ def analytics_data():
             "error": "Something went wrong"
         })
     finally:
+        cursor.close()
+        db.close()
+@analytics_routes.route(
+    '/ai-insights'
+)
+@login_required
+def ai_insights():
+
+    if session.get('role') not in [
+        'admin',
+        'ceo'
+    ]:
+        abort(403)
+
+    db, cursor = get_db_connection()
+
+    try:
+
+        cursor.execute("""
+            SELECT *
+            FROM travel_settlements
+        """)
+
+        settlements = cursor.fetchall()
+
+        cursor.execute("""
+            SELECT *
+            FROM fraud_analysis
+        """)
+        fraud_data = cursor.fetchall()
+        cursor.execute("""
+            SELECT
+                MONTH(created_at) AS month,
+                SUM(expense_incurred) AS total
+            FROM travel_settlements
+            GROUP BY MONTH(created_at)
+            ORDER BY month DESC
+            LIMIT 2
+        """)
+        monthly_data = cursor.fetchall()
+        dashboard = generate_ai_insights(
+            settlements,
+            fraud_data,
+            monthly_data
+        )
+        return render_template(
+            "ai_insights.html",
+            dashboard=dashboard
+        )
+    finally:
+
         cursor.close()
         db.close()

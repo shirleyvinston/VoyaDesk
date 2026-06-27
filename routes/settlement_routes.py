@@ -1,4 +1,5 @@
 import os
+from services.fraud_service import analyze_settlement
 from services.settlement_pdf_service import generate_settlement_pdf
 from flask import session
 from flask import send_file
@@ -755,7 +756,11 @@ def submit_settlement(request_id):
             WHERE settlement_id=%s
         """,(settlement['id'],))
         expenses = cursor.fetchall()
-        
+        fraud_result = analyze_settlement(
+            settlement,
+            expenses
+        )
+        print("FRAUD RESULT =", fraud_result)
         cursor.execute("""
             SELECT *
             FROM settlement_files
@@ -785,11 +790,49 @@ def submit_settlement(request_id):
             SET settlement_status='Submitted'
             WHERE id=%s
         """, (request_id,))
-
+        cursor.execute("""
+            SELECT id
+            FROM fraud_analysis
+            WHERE request_id=%s
+        """,(request_id,))
+        existing = cursor.fetchone()
+        if existing:
+            cursor.execute("""
+                UPDATE fraud_analysis
+                SET
+                    fraud_score=%s,
+                    risk_level=%s,
+                    recommendation=%s,
+                    remarks=%s
+                WHERE request_id=%s
+            """,(
+                fraud_result['score'],
+                fraud_result['risk'],
+                fraud_result['recommendation'],
+                fraud_result['remarks'],
+                request_id
+            ))
+        else:
+            cursor.execute("""
+                INSERT INTO fraud_analysis
+                (
+                    request_id,
+                    fraud_score,
+                    risk_level,
+                    recommendation,
+                    remarks
+                )
+                VALUES
+                (%s,%s,%s,%s,%s)
+            """,(
+                request_id,
+                fraud_result['score'],
+                fraud_result['risk'],
+                fraud_result['recommendation'],
+                fraud_result['remarks']
+            ))
         db.commit()
-
         return redirect('/settlements')
-
     finally:
 
         cursor.close()
@@ -797,31 +840,109 @@ def submit_settlement(request_id):
 @settlement_routes.route('/submitted-settlements')
 @login_required
 def submitted_settlements():
-
+    employee = request.args.get('employee', '')
+    project = request.args.get('project', '')
     if session.get('role') != 'accounts':
         abort(403)
 
     db, cursor = get_db_connection()
 
     try:
-        cursor.execute("""
+
+        employee = request.args.get(
+            'employee',
+            ''
+        )
+
+        project = request.args.get(
+            'project',
+            ''
+        )
+        site = request.args.get(
+            'site',
+            ''
+        )
+        query = """
             SELECT
                 tr.*,
                 ts.id AS settlement_id,
-                ts.settlement_pdf
+                ts.settlement_pdf,
+                fa.fraud_score,
+                fa.risk_level,
+                fa.recommendation
             FROM travel_requests tr
             LEFT JOIN travel_settlements ts
                 ON tr.id = ts.request_id
+            LEFT JOIN fraud_analysis fa
+                ON tr.id = fa.request_id
             WHERE tr.settlement_status='Submitted'
+        """
+        params = []
+
+        if employee:
+
+            query += """
+                AND tr.emp_name LIKE %s
+            """
+
+            params.append(
+                f"%{employee}%"
+            )
+
+        if project:
+
+            query += """
+                AND tr.project_name LIKE %s
+            """
+
+            params.append(
+                f"%{project}%"
+            )
+        if site:
+            query += """
+                AND tr.site_name LIKE %s
+            """
+            params.append(
+                f"%{site}%"
+            )
+        query += """
             ORDER BY tr.id DESC
-        """)
+        """
+        cursor.execute(
+            query,
+            tuple(params)
+        )
         requests_data = cursor.fetchall()
+        cursor.execute("""
+            SELECT DISTINCT emp_name
+            FROM travel_requests
+            WHERE settlement_status='Submitted'
+            ORDER BY emp_name
+        """)
+        employees = cursor.fetchall()
+        cursor.execute("""
+            SELECT DISTINCT project_name
+            FROM travel_requests
+            WHERE settlement_status='Submitted'
+            ORDER BY project_name
+        """)
+        projects = cursor.fetchall()
+        cursor.execute("""
+            SELECT DISTINCT site_name
+            FROM travel_requests
+            WHERE settlement_status='Submitted'
+            ORDER BY site_name
+        """)
+        sites = cursor.fetchall()
         return render_template(
             'submitted_settlements.html',
-            requests_data=requests_data
+            requests_data=requests_data,
+            employees=employees,
+            projects=projects,
+            sites=sites
         )
-
     finally:
+
         cursor.close()
         db.close()
 @settlement_routes.route(
@@ -852,6 +973,63 @@ def download_settlement_pdf(request_id):
             ),
             as_attachment=True
         )
+
+    finally:
+
+        cursor.close()
+        db.close()
+@settlement_routes.route(
+    '/approve-settlement/<int:request_id>'
+)
+@login_required
+def approve_settlement(request_id):
+
+    if session.get('role') != 'accounts':
+        abort(403)
+
+    db, cursor = get_db_connection()
+
+    try:
+
+        cursor.execute("""
+            UPDATE travel_requests
+            SET settlement_status='Draft'
+            WHERE id=%s
+        """, (request_id,))
+
+        db.commit()
+
+        return redirect('/submitted-settlements')
+
+    finally:
+
+        cursor.close()
+        db.close()
+@settlement_routes.route(
+    '/decline-settlement/<int:request_id>'
+)
+@login_required
+def decline_settlement(request_id):
+
+    if session.get('role') != 'accounts':
+        abort(403)
+
+    db, cursor = get_db_connection()
+
+    try:
+
+        cursor.execute("""
+            UPDATE travel_requests
+            SET settlement_status='Pending'
+            WHERE id=%s
+        """, (request_id,))
+        cursor.execute("""
+            DELETE FROM fraud_analysis
+            WHERE request_id=%s
+        """,(request_id,))
+        db.commit()
+
+        return redirect('/submitted-settlements')
 
     finally:
 
